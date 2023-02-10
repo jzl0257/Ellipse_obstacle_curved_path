@@ -44,7 +44,8 @@ public class curvePlayBack : MonoBehaviour
         if (isPlaying)
         {
             PositionEntry transposOffet = GetTrajectoryEntry((Time.time - startTime) * timeScale);
-            this.gameObject.transform.position = startPos + transposOffet.position + posOffet * ((float)transposOffet.timeStamp);
+            //this.gameObject.transform.position = startPos + transposOffet.position + posOffet * ((float)transposOffet.timeStamp);
+            this.gameObject.transform.position = startPos + transposOffet.position;
             this.gameObject.transform.rotation = startRot * transposOffet.rotation;
 
             if (entries.Count == 1)
@@ -77,14 +78,14 @@ public class curvePlayBack : MonoBehaviour
                 startRot = this.gameObject.transform.rotation;
 
 
-                if (targetEndPoint != null)
-                {
+                //if (targetEndPoint != null)
+                //{
 
-                    posOffet = targetEndPoint.transform.position - (entries[entries.Count - 1].position + startPos);
-                    posOffet /= (float)entries[entries.Count - 1].timeStamp;
+                  //  posOffet = targetEndPoint.transform.position - (entries[entries.Count - 1].position + startPos);
+                   // posOffet /= (float)entries[entries.Count - 1].timeStamp;
 
 
-                }
+                //}
 
 
                 isDelayed = true;

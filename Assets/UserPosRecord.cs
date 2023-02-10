@@ -25,8 +25,11 @@ public class UserPosRecord : MonoBehaviour
     float[] xpositions = { 7.5f, 7.5f, 5.0f, 5.0f, -7.5f, -7.5f, -5.0f, -5.0f };
     float[] zpositions = { 7.5f, 2.5f, -2.5f, -7.5f, 7.5f, 2.5f, -2.5f, -7.5f };
     float[] obstaclescales = { 8.0f, 6.0f, 4.0f, 2.0f, 8.0f, 6.0f, 4.0f, 2.0f };
-    float[] endpositions = { 117.5f, 135.0f, 152.5f, 170.0f, 242.5f, 225.0f, 207.5f,190.0f };
-    float[] startpositions = { 10.0f, 10.0f, 10.0f, 10.0f, 350.0f, 350.0f, 350.0f, 350.0f };
+    //float[] endpositions = { 117.5f, 135.0f, 152.5f, 170.0f, 242.5f, 225.0f, 207.5f,190.0f };
+    //float[] startpositions = { 10.0f, 10.0f, 10.0f, 10.0f, 350.0f, 350.0f, 350.0f, 350.0f };
+    // test case for random start and end positions 
+    float[] endpositions = { 125.0f, 104.0f, 316.0f, 284.0f, 28.0f, 348.0f, 164.0f,283.0f };
+    float[] startpositions = { 42.0f, 347.0f, 213.0f, 179.0f, 265.0f, 204.0f, 37.0f, 10.0f };
     float[] remoteinitialaxes = {0.0f,20.0f,40.0f,60.0f,80.0f };
     float xposition;
     float zposition;
