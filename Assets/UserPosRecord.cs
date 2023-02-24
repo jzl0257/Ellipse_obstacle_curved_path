@@ -9,6 +9,7 @@ public class UserPosRecord : MonoBehaviour
 {
     public GameObject worldAnchor;
     public GameObject obstacle;
+    public GameObject midline;
     private bool isRecording = false;
     private double startTime;
     private Vector3 startPos;
@@ -25,11 +26,11 @@ public class UserPosRecord : MonoBehaviour
     float[] xpositions = { 7.5f, 7.5f, 5.0f, 5.0f, -7.5f, -7.5f, -5.0f, -5.0f };
     float[] zpositions = { 7.5f, 2.5f, -2.5f, -7.5f, 7.5f, 2.5f, -2.5f, -7.5f };
     float[] obstaclescales = { 8.0f, 6.0f, 4.0f, 2.0f, 8.0f, 6.0f, 4.0f, 2.0f };
-    //float[] endpositions = { 117.5f, 135.0f, 152.5f, 170.0f, 242.5f, 225.0f, 207.5f,190.0f };
-    //float[] startpositions = { 10.0f, 10.0f, 10.0f, 10.0f, 350.0f, 350.0f, 350.0f, 350.0f };
+    float[] endpositions = { 117.5f, 135.0f, 152.5f, 170.0f, 242.5f, 225.0f, 207.5f,190.0f };
+    float[] startpositions = { 10.0f, 10.0f, 10.0f, 10.0f, 350.0f, 350.0f, 350.0f, 350.0f };
     // test case for random start and end positions 
-    float[] endpositions = { 125.0f, 104.0f, 316.0f, 284.0f, 28.0f, 348.0f, 164.0f,283.0f };
-    float[] startpositions = { 42.0f, 347.0f, 213.0f, 179.0f, 265.0f, 204.0f, 37.0f, 10.0f };
+    //float[] endpositions = { 125.0f, 104.0f, 316.0f, 284.0f, 28.0f, 348.0f, 164.0f,283.0f };
+    //float[] startpositions = { 42.0f, 347.0f, 213.0f, 179.0f, 265.0f, 204.0f, 37.0f, 10.0f };
     float[] remoteinitialaxes = {0.0f,20.0f,40.0f,60.0f,80.0f };
     float xposition;
     float zposition;
@@ -48,6 +49,7 @@ public class UserPosRecord : MonoBehaviour
     public int initaxiscount;
     public bool instart;
     public bool outstart;
+    public bool alltrialsdone;
 
 
 
@@ -61,6 +63,7 @@ public class UserPosRecord : MonoBehaviour
         end_Collider = endMark.GetComponent<Collider>();
         instart = false;
         outstart = false;
+        alltrialsdone = false;
 
 
         xposition = xpositions[count];
@@ -83,7 +86,7 @@ public class UserPosRecord : MonoBehaviour
         xend_shift = xend * Mathf.Cos(remoteinitialaxis * Mathf.Deg2Rad) + zend * Mathf.Sin(remoteinitialaxis * Mathf.Deg2Rad);
         zend_shift = -xend * Mathf.Sin(remoteinitialaxis * Mathf.Deg2Rad) + zend * Mathf.Cos(remoteinitialaxis * Mathf.Deg2Rad);
 
-
+        midline.transform.rotation = Quaternion.Euler(90.0f, remoteinitialaxis, 0.0f);
 
 
         // These are the positions when remoteinitialaxis = 0.0f
@@ -165,32 +168,73 @@ public class UserPosRecord : MonoBehaviour
             entries.Add(entry);
 
         }
-       
-        if(end_Collider.bounds.Contains(transform.position) && !outstart)
+
+        if (end_Collider.bounds.Contains(transform.position) && !outstart)
         {
-            
+
             outstart = true;
             instart = false;
-            count++;
-            // Debug.Log("Stop Recording count no : " + count + " intial angle : " + remoteinitialaxis);
 
-            if (initaxiscount > 4)
+
+            Debug.Log("Stop Recording count no : " + count + " intial angle : " + remoteinitialaxis);
+
+            if (isRecording && !alltrialsdone)
+            {
+                // stop recording
+                isRecording = false;
+                //save to file
+                string filename = "PositionRecording_entry_angle_" + startpositions[count].ToString() + "_exit_angle_" + endpositions[count].ToString() + "_initial_angle_" + remoteinitialaxis.ToString() + "_" + this.name + "_";
+
+                //string path = Application.persistentDataPath + "/pathOfDevice";
+                string path = @"C:\Users\ullala\Documents\GitHub\Ellipse_obstacle_curved_path\Assets\savedData";
+
+                Directory.CreateDirectory(path);
+
+                int inc = 1;
+
+                while (File.Exists(path + "/" + filename + inc.ToString() + ".json"))
+                {
+                    inc++;
+                    Debug.Log("exists");
+                }
+
+                string filepath = path + "/" + filename + inc.ToString() + ".json";
+
+                File.WriteAllText(filepath, JsonConvert.SerializeObject(entries, Formatting.None,
+                    new JsonSerializerSettings()
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    }));
+
+                Debug.Log(filepath);
+
+                //clear entries for next recording
+                entries.Clear();
+            }
+
+
+
+            if (initaxiscount >= 5)
             {
                 Debug.Log("All trials complete !");
-                initaxiscount = 0;
+                alltrialsdone = true;
+                //initaxiscount = 0;
             }
             else
             {
-                
-                if(count > 7)
-                {
-                    initaxiscount++;
-                    count = 0;
-                }
-                else
-                {
-                    
-                    Debug.Log("Stop Recording count no : " + count + " intial angle : " + remoteinitialaxis);
+
+            if (count >= 7)
+            {
+                initaxiscount++;
+                count = 0;
+            }
+            else
+            {
+
+
+            count++;
+        }
+            
                     remoteinitialaxis = remoteinitialaxes[initaxiscount];
                     xposition = xpositions[count];
                     zposition = zpositions[count];
@@ -212,7 +256,7 @@ public class UserPosRecord : MonoBehaviour
                     xend_shift = xend * Mathf.Cos(remoteinitialaxis * Mathf.Deg2Rad) + zend * Mathf.Sin(remoteinitialaxis * Mathf.Deg2Rad);
                     zend_shift = -xend * Mathf.Sin(remoteinitialaxis * Mathf.Deg2Rad) + zend * Mathf.Cos(remoteinitialaxis * Mathf.Deg2Rad);
 
-
+                    midline.transform.rotation = Quaternion.Euler(90.0f, remoteinitialaxis, 0.0f); //transforming the center line.
 
 
                     // These are the positions when remoteinitialaxis = 0.0f
@@ -225,44 +269,14 @@ public class UserPosRecord : MonoBehaviour
                     //this.gameObject.transform.position = new Vector3(x, 0.0f, z);
                     startMark.transform.position = new Vector3(xstart_shift, 0, zstart_shift);
                     endMark.transform.position = new Vector3(xend_shift, 0, zend_shift);
-                }
+               // }
                 
 
-                if (isRecording)
-                {
-                    // stop recording
-                    isRecording = false;
-
-                    //save to file
-                    string filename = "PositionRecording_entry_angle_" + startpositions[count].ToString() + "_exit_angle_" + endpositions[count].ToString() + "_initial_angle_" + remoteinitialaxis.ToString() +"_" +this.name + "_";
-                    //string path = Application.persistentDataPath + "/pathOfDevice";
-                    string path = @"C:\Users\ullala\Documents\GitHub\Ellipse_obstacle_curved_path\Assets\savedData";
-
-                    Directory.CreateDirectory(path);
-
-                    int inc = 1;
-
-                    while (File.Exists(path + "/" + filename + inc.ToString() + ".json"))
-                    {
-                        inc++;
-                        Debug.Log("exists");
-                    }
-
-                    string filepath = path + "/" + filename + inc.ToString() + ".json";
-
-                    File.WriteAllText(filepath, JsonConvert.SerializeObject(entries, Formatting.None,
-                        new JsonSerializerSettings()
-                        {
-                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                        }));
-
-                    Debug.Log(filepath);
-
-                    //clear entries for next recording
-                    entries.Clear();
-                }
+               
             }
+           
         }
+
         
     }
 
